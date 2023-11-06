@@ -1,69 +1,66 @@
-import torch.nn as nn
-import torch.nn.functional as F
 import torch
 
-class DSCNN(nn.Module):
-    def __init__(self, num_classes, in_channels, shape=(32, 32)):
+
+class DSCNN(torch.nn.Module):
+    def __init__(self, in_channels=1, in_shape=(32, 32), ds_cnn_number=3, ds_cnn_size=64, is_classifier=False, classes_number=0):
         super(DSCNN, self).__init__()
-        
-        # C(64,10,4,2,2) // features,kernel size (time, freq), stride (time, freq)
-        self.conv_1 = nn.Conv2d(in_channels=in_channels, out_channels=64, kernel_size=(10, 4), padding='same')
-        self.conv_1_bn = nn.BatchNorm2d(64)
-        # DSC(64,3,1) // features, kernel size, stride
-        self.conv_depth_1 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64, padding='same')
-        self.ds_bn_11 = nn.BatchNorm2d(64)
-        self.conv_point_1 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=1, padding='same')
-        self.ds_bn_12 = nn.BatchNorm2d(64)
-        # DSC(64,3,1) // features, kernel size, stride
-        self.conv_depth_2 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64, padding='same')
-        self.ds_bn_21 = nn.BatchNorm2d(64)
-        self.conv_point_2 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=1, padding='same')
-        self.ds_bn_22 = nn.BatchNorm2d(64)
-        # DSC(64,3,1) // features, kernel size, stride
-        self.conv_depth_3 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64, padding='same')
-        self.ds_bn_31 = nn.BatchNorm2d(64)
-        self.conv_point_3 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=1, padding='same')
-        self.ds_bn_32 = nn.BatchNorm2d(64)
-        # DSC(64,3,1) // features, kernel size, stride
-        self.conv_depth_4 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64, padding='same')
-        self.ds_bn_41 = nn.BatchNorm2d(64)
-        self.conv_point_4 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=1, padding='same')
-        self.ds_bn_42 = nn.BatchNorm2d(64)
-        # Avg Pool
-        self.pool = nn.AvgPool2d(shape)
 
-        # fc
-        self.fc =  nn.Linear(64, num_classes)
+        self.classes_number = classes_number
+        self.is_classifier = is_classifier
 
-    def forward(self, x):
-        x = self.conv_1(x)
-        x = F.relu(self.conv_1_bn(x))
-        
-        x = self.conv_depth_1(x)
-        x = F.relu(self.ds_bn_11(x))
-        x = self.conv_point_1(x)
-        x = F.relu(self.ds_bn_12(x))
+        self.initial_convolution = self.make_features(in_channels, ds_cnn_size)
+        self.dscnn_blocks = self.make_dscnn_blocks(ds_cnn_size, ds_cnn_number)
+        self.pool = self.make_pool(in_shape)
 
-        
-        x = self.conv_depth_2(x)
-        x = F.relu(self.ds_bn_21(x))
-        x = self.conv_point_2(x)
-        x = F.relu(self.ds_bn_22(x))  
+        self.classifier = torch.nn.Linear(ds_cnn_size, classes_number) if self.is_classifier else None
 
-        x = self.conv_depth_3(x)
-        x = F.relu(self.ds_bn_31(x))
-        x = self.conv_point_3(x)
-        x = F.relu(self.ds_bn_32(x))   
+    
+    def make_features(self, in_channels, out_channels):
+        layers = []
+    
+        layers.append(torch.nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=(3, 3), padding='same'))
+        layers.append(torch.nn.BatchNorm2d(out_channels))
+        layers.append(torch.nn.ReLU(inplace=True))
 
-        x = self.conv_depth_4(x)
-        x = F.relu(self.ds_bn_41(x))
-        x = self.conv_point_4(x)
-        x = F.relu(self.ds_bn_42(x))
+        return torch.nn.Sequential(*layers)
 
+    def make_dscnn_blocks(self, ds_cnn_size, ds_cnn_number):
+        layers = []
+
+        for i in range(ds_cnn_number):
+            layers.append(torch.nn.Conv2d(in_channels=ds_cnn_size, out_channels=ds_cnn_size, kernel_size=3, groups=ds_cnn_size, padding='same'))
+            layers.append(torch.nn.BatchNorm2d(ds_cnn_size))          
+            layers.append(torch.nn.ReLU(inplace=True))
+            layers.append(torch.nn.Conv2d(in_channels=ds_cnn_size, out_channels=ds_cnn_size, kernel_size=1, padding='same'))
+            layers.append(torch.nn.BatchNorm2d(ds_cnn_size))    
+            layers.append(torch.nn.ReLU(inplace=True))
+
+        return torch.nn.Sequential(*layers)
+
+    def make_pool(self, in_shape):
+        layers = []
+
+        layers.append(torch.nn.AvgPool2d(in_shape))
+        layers.append(torch.nn.Flatten())
+
+        return torch.nn.Sequential(*layers)
+    
+    def freeze(self) -> None:
+        for p in self.parameters():
+            p.requires_grad = False
+        self.eval()
+
+    def unfreeze(self) -> None:
+        for p in self.parameters():
+            p.requires_grad = True
+        self.train()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.initial_convolution(x)
+        x = self.dscnn_blocks(x)
         x = self.pool(x)
 
-        x = torch.flatten(x, 1)
-
-        x = self.fc(x)
+        if self.is_classifier:
+            x = self.classifier(x)
 
         return x

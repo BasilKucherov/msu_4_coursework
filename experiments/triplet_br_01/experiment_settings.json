@@ -1,0 +1,27 @@
+{
+    "experiment_name": "triplet_br_01",
+    "experiments_folder": "./experiments/",
+    "model": {
+        "name": "DSCNN",
+        "n_mels": 32,
+        "in_channels": 1,
+        "ds_cnn_number": 6,
+        "ds_cnn_size": 64,
+        "is_classifier": false,
+        "classes_number": 20,
+        "total_params": 31104,
+        "train_params": 31104
+    },
+    "batch_size": 128,
+    "n_epoch": 200,
+    "loss": {
+        "name": "TripletLoss",
+        "loss_margin": 1,
+        "triplet_mining_strategy": "batch_random",
+        "loss_agr_policy": "mean"
+    },
+    "learning_rate": 1e-05,
+    "optimizer": "Adam",
+    "time_start": "2023-10-25 17:56:10.437504",
+    "time_finish": "2023-10-25 19:34:50.822471"
+}

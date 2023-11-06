@@ -1,39 +1,32 @@
-"""Google speech commands dataset."""
-__author__ = 'Yuan Xu'
-
 import os
 import numpy as np
-
 import librosa
-
 from torch.utils.data import Dataset
 
 class SpeechCommandsDataset(Dataset):
     def __init__(self, folder, transform=None):
-        self.all_classes = [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d)) and not d.startswith('_')]
-        self.all_classes.sort()
+        self.classes = [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d)) and not d.startswith('_')]
+        self.classes.sort()
 
-        # print(self.all_classes)
-
-        self.class_to_idx = {self.all_classes[i]: i for i in range(len(self.all_classes))}
+        self.class_to_idx = {self.classes[i]: i for i in range(len(self.classes))}
         self.idx_to_class = {idx: c for c, idx in self.class_to_idx.items()} 
         
-        self.indices = [[] for _ in range(len(self.all_classes))]
+        self.class_indices = [[] for _ in range(len(self.classes))]
  
         data = []
         cur_idx = 0
 
-        for c in self.all_classes:
-            d = os.path.join(folder, c)
-            target = self.class_to_idx[c]
-            for f in os.listdir(d):
-                path = os.path.join(d, f)
+        for data_class in self.classes:
+            folder_path = os.path.join(folder, data_class)
+            target = self.class_to_idx[data_class]
+
+            for file_name in os.listdir(folder_path):
+                path = os.path.join(folder_path, file_name)
                 data.append((path, target))
 
-                self.indices[target].append(cur_idx)
+                self.class_indices[target].append(cur_idx)
                 cur_idx += 1
 
-        self.classes = self.all_classes
         self.data = data
         self.transform = transform
 
@@ -49,26 +42,34 @@ class SpeechCommandsDataset(Dataset):
 
         return data
 
-    def get_class_idx(self, idx):
+    def get_classes_number(self):
+        return len(self.classes)
+
+    def get_class_from_idx(self, idx):
         if idx in self.idx_to_class.keys():
             return self.idx_to_class[idx]
         return 'unknown'
     
-    def get_idx_class(self, c):
+    def get_idx_from_class(self, c):
         if c in self.class_to_idx.keys():
             return self.class_to_idx[c]
         return -1
 
+    def get_class_indices(self):
+        return self.class_indices
+
     def make_weights_for_balanced_classes(self):
         """adopted from https://discuss.pytorch.org/t/balanced-sampling-between-classes-with-torchvision-dataloader/2703/3"""
 
-        nclasses = len(self.classes)
-        count = np.zeros(nclasses)
-        for item in self.data:
-            count[item[1]] += 1
+        classes_number = len(self.classes)
+        classes_size = np.zeros(classes_number)
 
-        N = float(sum(count))
-        weight_per_class = N / count
+        for i in range(classes_number):
+            classes_size[i] = len(self.class_indices[i])
+
+        total_size = float(sum(classes_size))
+        weight_per_class = total_size / classes_size
+
         weight = np.zeros(len(self))
         for idx, item in enumerate(self.data):
             weight[idx] = weight_per_class[item[1]]

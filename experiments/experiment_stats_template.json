@@ -1,0 +1,41 @@
+{
+    "loss": {
+        "best_train": 1,
+        "best_train_epoch": 1,
+        "best_valid": 1,
+        "best_valid_epoch": 1,
+        "train": [],
+        "valid": [],
+        "train_epoch": [],
+        "valid_epoch": []
+    },
+    "clustering_metrics": {
+        "fc": {
+            "best_train": 1,
+            "best_valid": 1,
+            "best_test": 1,
+            "best_train_epoch": 1,
+            "best_valid_epoch": 1,
+            "best_test_epoch": 1,
+            "train": [],
+            "valid": [],
+            "test": [],
+            "epoch": []
+        },
+        "hv": "...",
+        "silhouette_score": "...",
+        "calinski_harabasz_score": "...",
+        "davies_bouldin_score": "..."
+    },
+    "fsl": {
+        "closest_known_epochN_shotsM": {
+            "epoch": 1,
+            "shots": 1,
+            "accuracy": {
+                "train": 1,
+                "valid": 1,
+                "test": 1
+            }
+        }
+    }
+}

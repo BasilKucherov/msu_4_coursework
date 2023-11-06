@@ -1,0 +1,25 @@
+{
+    "experiment_name": "lifted_structured_02",
+    "experiments_folder": "./experiments/",
+    "model": {
+        "name": "DSCNN",
+        "n_mels": 32,
+        "in_channels": 1,
+        "ds_cnn_number": 6,
+        "ds_cnn_size": 64,
+        "is_classifier": false,
+        "classes_number": 20,
+        "total_params": 31104,
+        "train_params": 31104
+    },
+    "batch_size": 128,
+    "n_epoch": 200,
+    "loss": {
+        "name": "LiftedStructuredLoss",
+        "margin": 5
+    },
+    "learning_rate": 0.0001,
+    "optimizer": "Adam",
+    "time_start": "2023-10-28 01:46:40.300007",
+    "time_finish": "2023-10-28 03:04:55.111733"
+}

@@ -1,0 +1,22 @@
+{
+    "experiment_name": "base_01",
+    "experiments_folder": "./experiments/",
+    "model": {
+        "name": "DSCNN",
+        "n_mels": 32,
+        "in_channels": 1,
+        "ds_cnn_number": 6,
+        "ds_cnn_size": 64,
+        "is_classifier": true,
+        "classes_number": 20,
+        "total_params": 32404,
+        "train_params": 32404
+    },
+    "batch_size": 32,
+    "n_epoch": 200,
+    "loss": "CrossEntropy",
+    "learning_rate": 0.0001,
+    "optimizer": "Adam",
+    "time_start": "2023-10-15 17:22:48.654227",
+    "time_finish": "2023-10-15 18:59:27.897241"
+}
