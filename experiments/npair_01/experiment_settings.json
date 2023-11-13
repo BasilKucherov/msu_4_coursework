@@ -21,5 +21,7 @@
     "learning_rate": 0.0001,
     "optimizer": "Adam",
     "time_start": "2023-10-27 17:46:57.448647",
-    "time_finish": "2023-10-27 19:15:52.679942"
+    "time_finish": "2023-10-27 19:15:52.679942",
+    "train_dataset": "speech_commands/train",
+    "valid_dataset": "speech_commands/valid"
 }

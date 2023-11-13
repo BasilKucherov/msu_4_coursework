@@ -14,9 +14,13 @@
     },
     "batch_size": 32,
     "n_epoch": 200,
-    "loss": "CrossEntropy",
+    "loss": { 
+        "name": "CrossEntropy"
+    },
     "learning_rate": 0.0001,
     "optimizer": "Adam",
     "time_start": "2023-10-15 17:22:48.654227",
-    "time_finish": "2023-10-15 18:59:27.897241"
+    "time_finish": "2023-10-15 18:59:27.897241",
+    "train_dataset": "speech_commands/train",
+    "valid_dataset": "speech_commands/valid"
 }

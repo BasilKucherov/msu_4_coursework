@@ -149,6 +149,6 @@ class TripletLossBatchRandom(torch.nn.Module):
         loss = torch.nn.functional.relu(distance_positive - distance_negative + self.margin)
 
         if self.loss_agr_policy == "mean":
-            return loss.mean(), distance_positive.mean(), distance_negative.mean()
+            return loss.mean()
         else:            
-            return loss.max(), distance_positive.mean(), distance_negative.mean()
+            return loss.max()

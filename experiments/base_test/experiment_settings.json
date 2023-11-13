@@ -1,0 +1,26 @@
+{
+    "experiment_name": "base_test",
+    "experiments_folder": "./experiments/",
+    "model": {
+        "name": "DSCNN",
+        "n_mels": 32,
+        "in_channels": 1,
+        "ds_cnn_number": 6,
+        "ds_cnn_size": 64,
+        "is_classifier": true,
+        "classes_number": 15,
+        "total_params": 32079,
+        "train_params": 32079
+    },
+    "batch_size": 128,
+    "n_epoch": 200,
+    "loss": {
+        "name": "CrossEntropy"
+    },
+    "train_dataset": "speech_commands/test",
+    "valid_dataset": null,
+    "learning_rate": 0.0001,
+    "optimizer": "Adam",
+    "time_start": "2023-11-12 12:30:09.457156",
+    "time_finish": "2023-11-12 13:56:52.974560"
+}
